@@ -14,7 +14,9 @@ abstract class HTLexicon {
   static const stringReplaces = <String, String>{
     '\\\\': '\\',
     '\\n': '\n',
+    '\\t': '\t',
     '\\\'': '\'',
+    '\\\"': '\"',
   };
 
   static String convertStringLiteral(String literal) {
