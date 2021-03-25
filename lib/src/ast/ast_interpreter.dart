@@ -155,7 +155,7 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
           try {
             return func(positionalArgs, namedArgs);
           } on RangeError {
-            throw HTErrorExternParams();
+            throw HTErrorExternParams(func);
           }
         } else {
           return Function.apply(func, positionalArgs,
@@ -176,7 +176,7 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
           try {
             return func(positionalArgs, namedArgs);
           } on RangeError {
-            throw HTErrorExternParams();
+            throw HTErrorExternParams(func);
           }
         } else {
           return Function.apply(func, positionalArgs,
@@ -527,7 +527,7 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
                 try {
                   return constructor(positionalArgs, namedArgs);
                 } on RangeError {
-                  throw HTErrorExternParams();
+                  throw HTErrorExternParams(constructor);
                 }
               } else {
                 return Function.apply(
@@ -546,7 +546,7 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
           try {
             return externFunc(positionalArgs, namedArgs);
           } on RangeError {
-            throw HTErrorExternParams();
+            throw HTErrorExternParams(externFunc);
           }
         } else {
           return Function.apply(
@@ -568,7 +568,7 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
           try {
             return constructor(positionalArgs, namedArgs);
           } on RangeError {
-            throw HTErrorExternParams();
+            throw HTErrorExternParams(constructor);
           }
         } else {
           return Function.apply(
@@ -583,7 +583,7 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
         try {
           return callee(positionalArgs, namedArgs);
         } on RangeError {
-          throw HTErrorExternParams();
+          throw HTErrorRange(-1, -1, positionalArgs.toString());
         }
       } else {
         return Function.apply(callee, positionalArgs,
@@ -625,6 +625,9 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
     curColumn = expr.column;
     var collection = visitASTNode(expr.collection);
     var key = visitASTNode(expr.key);
+    if (collection is List && collection.length <= key) {
+      throw HTErrorRange(collection.length, key, expr.key.toString());
+    }
     if (collection is List || collection is Map) {
       return collection[key];
     }

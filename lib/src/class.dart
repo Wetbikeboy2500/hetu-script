@@ -164,7 +164,7 @@ class HTClass extends HTNamespace {
           try {
             return externSetterFunc([value], const {});
           } on RangeError {
-            throw HTErrorExternParams();
+            throw HTErrorExternParams(externSetterFunc);
           }
         } else {
           return Function.apply(externSetterFunc, [value]);

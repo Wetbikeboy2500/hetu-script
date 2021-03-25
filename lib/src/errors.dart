@@ -26,7 +26,7 @@ abstract class HTError {
   // static const errorDeclared = 'is already declared';
   static const defined = 'is already defined';
 
-  // static const errorRange = 'Index out of range, should be less than';
+  static const errorRange = 'Index out of range, should be less than';
   static const invalidLeftValue = 'Invalid left-value';
   static const notCallable = 'is not callable';
   static const externFuncType =
@@ -176,9 +176,9 @@ class HTErrorDefined_Runtime extends HTError {
       : super('"$id" ${HTError.defined}', HTErrorType.interpreter);
 }
 
-// class HTErrorRange extends HTError {
-//   HTErrorRange(int length) : super('${HTError.errorRange} "$length"');
-// }
+class HTErrorRange extends HTError {
+  HTErrorRange(int len, int index, String varId) : super('${HTError.errorRange} $len $varId=$index', HTErrorType.interpreter);
+}
 
 class HTErrorInvalidLeftValue extends HTParserError {
   HTErrorInvalidLeftValue(String id)
@@ -204,8 +204,8 @@ class HTErrorExternFunc extends HTError {
 }
 
 class HTErrorExternParams extends HTError {
-  HTErrorExternParams()
-      : super('${HTError.externFuncParam}', HTErrorType.interpreter);
+  HTErrorExternParams(Function function)
+      : super('${HTError.externFuncParam} [$function]', HTErrorType.interpreter);
 }
 
 class HTErrorUndefinedMember extends HTError {
