@@ -292,6 +292,9 @@ class SymbolExpr extends ASTNode {
 
   @override
   ASTNode clone() => SymbolExpr(id);
+
+  @override
+  String toString() => 'Symbol: $id';
 }
 
 class AssignExpr extends ASTNode {

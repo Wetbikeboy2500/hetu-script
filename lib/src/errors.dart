@@ -22,8 +22,10 @@ abstract class HTError {
   static const notInitialized = 'has not initialized';
   static const undefined = 'Undefined identifier';
   static const undefinedOperator = 'Undefined operator';
+
   // static const errorDeclared = 'is already declared';
   static const defined = 'is already defined';
+
   // static const errorRange = 'Index out of range, should be less than';
   static const invalidLeftValue = 'Invalid left-value';
   static const notCallable = 'is not callable';
@@ -36,6 +38,7 @@ abstract class HTError {
   static const notList = 'is not a List or Map';
   static const notClass = 'is not a class';
   static const setterArity = 'Setter function\'s arity must be 1';
+
   // static const errorNullObject = 'is null';
   static const immutable = 'is immutable';
   static const notType = 'is not a type.';
@@ -58,6 +61,8 @@ abstract class HTError {
   static const binding = 'Missing binding extension on dart object';
 
   static const externalVar = 'External variable is not allowed.';
+  static const externalMemMissing1 = 'External class member get ';
+  static const externalMemMissing2 = ' failed due to null dart object.';
 
   static const bytesSig = 'Unknown bytecode signature.';
 
@@ -90,10 +95,12 @@ class HTInterpreterError extends HTError {
   String fileName;
 
   // interpreter会也会处理其他module抛出的异常，因此这里不指定类型
-  HTInterpreterError(String message, HTErrorType type, this.fileName, this.line, this.column) : super(message, type);
+  HTInterpreterError(String message, HTErrorType type, this.fileName, this.line,
+      this.column) : super(message, type);
 
   @override
-  String toString() => 'Hetu error:\n[$type}]\n[File: $fileName]\n[Line: $line, Column: $column]\n$message';
+  String toString() =>
+      'Hetu error:\n[$type}]\n[File: $fileName]\n[Line: $line, Column: $column]\n$message';
 }
 
 // class HTErrorAssign extends HTError {
@@ -106,7 +113,9 @@ class HTInterpreterError extends HTError {
 
 class HTErrorExpected extends HTParserError {
   HTErrorExpected(String expected, String met)
-      : super('"${expected != '\n' ? expected : '\\n'}" ${HTError.expected} "${met != '\n' ? met : '\\n'}"');
+      : super(
+      '"${expected != '\n' ? expected : '\\n'}" ${HTError.expected} "${met !=
+          '\n' ? met : '\\n'}"');
 }
 
 class HTErrorConstMustBeStatic extends HTParserError {
@@ -114,7 +123,8 @@ class HTErrorConstMustBeStatic extends HTParserError {
 }
 
 class HTErrorUnexpected extends HTParserError {
-  HTErrorUnexpected(String id) : super('${HTError.unexpected} "${id != '\n' ? id : '\\n'}"');
+  HTErrorUnexpected(String id)
+      : super('${HTError.unexpected} "${id != '\n' ? id : '\\n'}"');
 }
 
 class HTErrorReturn extends HTResolverError {
@@ -122,29 +132,35 @@ class HTErrorReturn extends HTResolverError {
 }
 
 class HTErrorPrivateMember extends HTError {
-  HTErrorPrivateMember(String id) : super('${HTError.privateMember} "$id"', HTErrorType.interpreter);
+  HTErrorPrivateMember(String id)
+      : super('${HTError.privateMember} "$id"', HTErrorType.interpreter);
 }
 
 class HTErrorPrivateDecl extends HTError {
-  HTErrorPrivateDecl(String id) : super('${HTError.privateDecl} "$id"', HTErrorType.interpreter);
+  HTErrorPrivateDecl(String id)
+      : super('${HTError.privateDecl} "$id"', HTErrorType.interpreter);
 }
 
 class HTErrorInitialized extends HTError {
-  HTErrorInitialized(String id) : super('"$id" ${HTError.notInitialized}', HTErrorType.resolver);
+  HTErrorInitialized(String id)
+      : super('"$id" ${HTError.notInitialized}', HTErrorType.resolver);
 }
 
 class HTErrorUndefined extends HTError {
-  HTErrorUndefined(String id) : super('${HTError.undefined} "$id"', HTErrorType.interpreter);
+  HTErrorUndefined(String id)
+      : super('${HTError.undefined} "$id"', HTErrorType.interpreter);
 }
 
 class HTErrorUndefinedOperator extends HTError {
   HTErrorUndefinedOperator(String id1, String op)
-      : super('${HTError.undefinedOperator} "$id1" "$op"', HTErrorType.interpreter);
+      : super(
+      '${HTError.undefinedOperator} "$id1" "$op"', HTErrorType.interpreter);
 }
 
 class HTErrorUndefinedBinaryOperator extends HTError {
   HTErrorUndefinedBinaryOperator(String id1, String id2, String op)
-      : super('${HTError.undefinedOperator} "$id1" "$op" "$id2"', HTErrorType.interpreter);
+      : super('${HTError.undefinedOperator} "$id1" "$op" "$id2"',
+      HTErrorType.interpreter);
 }
 
 // class HTErrorDeclared extends HTError {
@@ -156,7 +172,8 @@ class HTErrorDefined_Parser extends HTParserError {
 }
 
 class HTErrorDefined_Runtime extends HTError {
-  HTErrorDefined_Runtime(String id) : super('"$id" ${HTError.defined}', HTErrorType.interpreter);
+  HTErrorDefined_Runtime(String id)
+      : super('"$id" ${HTError.defined}', HTErrorType.interpreter);
 }
 
 // class HTErrorRange extends HTError {
@@ -164,7 +181,8 @@ class HTErrorDefined_Runtime extends HTError {
 // }
 
 class HTErrorInvalidLeftValue extends HTParserError {
-  HTErrorInvalidLeftValue(String id) : super('${HTError.invalidLeftValue} "$id"');
+  HTErrorInvalidLeftValue(String id)
+      : super('${HTError.invalidLeftValue} "$id"');
 }
 
 class HTErrorSetter extends HTParserError {
@@ -176,24 +194,29 @@ class HTErrorNotClass extends HTParserError {
 }
 
 class HTErrorCallable extends HTError {
-  HTErrorCallable(String id) : super('"$id" ${HTError.notCallable}', HTErrorType.interpreter);
+  HTErrorCallable(String id)
+      : super('"$id" ${HTError.notCallable}', HTErrorType.interpreter);
 }
 
 class HTErrorExternFunc extends HTError {
-  HTErrorExternFunc(String func) : super('${HTError.externFuncType}$func', HTErrorType.interpreter);
+  HTErrorExternFunc(String func)
+      : super('${HTError.externFuncType}$func', HTErrorType.interpreter);
 }
 
 class HTErrorExternParams extends HTError {
-  HTErrorExternParams() : super('${HTError.externFuncParam}', HTErrorType.interpreter);
+  HTErrorExternParams()
+      : super('${HTError.externFuncParam}', HTErrorType.interpreter);
 }
 
 class HTErrorUndefinedMember extends HTError {
   HTErrorUndefinedMember(String id, String type)
-      : super('"$id" ${HTError.undefinedMember} "$type"', HTErrorType.interpreter);
+      : super(
+      '"$id" ${HTError.undefinedMember} "$type"', HTErrorType.interpreter);
 }
 
 class HTErrorCondition extends HTError {
-  HTErrorCondition() : super(HTError.conditionMustBeBool, HTErrorType.interpreter);
+  HTErrorCondition()
+      : super(HTError.conditionMustBeBool, HTErrorType.interpreter);
 }
 
 // class HTErrorGet extends HTError {
@@ -201,11 +224,13 @@ class HTErrorCondition extends HTError {
 // }
 
 class HTErrorSubGet extends HTError {
-  HTErrorSubGet(String id) : super('"$id" ${HTError.notList}', HTErrorType.interpreter);
+  HTErrorSubGet(String id, String memberId)
+      : super('"$id" ${HTError.notList} "[$memberId]"', HTErrorType.interpreter);
 }
 
 class HTErrorExtends extends HTError {
-  HTErrorExtends(String id) : super('"$id" ${HTError.notClass}', HTErrorType.interpreter);
+  HTErrorExtends(String id)
+      : super('"$id" ${HTError.notClass}', HTErrorType.interpreter);
 }
 
 // class HTErrorNullObject extends HTError {
@@ -214,46 +239,53 @@ class HTErrorExtends extends HTError {
 
 class HTErrorTypeCheck extends HTError {
   HTErrorTypeCheck(String id, String valueType, String declValue)
-      : super('${HTError.typeCheck1} "$id" ${HTError.ofType} "$declValue" ${HTError.typeCheck2} "$valueType"',
-            HTErrorType.interpreter);
+      : super(
+      '${HTError.typeCheck1} "$id" ${HTError.ofType} "$declValue" ${HTError
+          .typeCheck2} "$valueType"',
+      HTErrorType.interpreter);
 }
 
 class HTErrorImmutable extends HTError {
-  HTErrorImmutable(String id) : super('"$id" ${HTError.immutable}', HTErrorType.interpreter);
+  HTErrorImmutable(String id)
+      : super('"$id" ${HTError.immutable}', HTErrorType.interpreter);
 }
 
 class HTErrorNotType extends HTError {
-  HTErrorNotType(String id) : super('"$id" ${HTError.notType}', HTErrorType.interpreter);
+  HTErrorNotType(String id)
+      : super('"$id" ${HTError.notType}', HTErrorType.interpreter);
 }
 
 class HTErrorArgType extends HTError {
   HTErrorArgType(String id, String assignValue, String declValue)
-      : super('${HTError.argType1} "$assignValue" ${HTError.ofType} "$assignValue" ${HTError.argType2} "$declValue"',
-            HTErrorType.interpreter);
+      : super('${HTError.argType1} "$assignValue" ${HTError
+      .ofType} "$assignValue" ${HTError.argType2} "$declValue"',
+      HTErrorType.interpreter);
 }
 
 class HTErrorReturnType extends HTError {
-  HTErrorReturnType(
-    String returnedType,
-    String funcName,
-    String declReturnType,
-  ) : super(
-            '"$returnedType" ${HTError.returnType2}'
-            ' "$funcName" ${HTError.returnType3} "$declReturnType"',
-            HTErrorType.interpreter);
+  HTErrorReturnType(String returnedType,
+      String funcName,
+      String declReturnType,) : super(
+      '"$returnedType" ${HTError.returnType2}'
+          ' "$funcName" ${HTError.returnType3} "$declReturnType"',
+      HTErrorType.interpreter);
 }
 
 class HTErrorMissingFuncDef extends HTError {
-  HTErrorMissingFuncDef(String funcName) : super('${HTError.missingFuncBody} $funcName', HTErrorType.interpreter);
+  HTErrorMissingFuncDef(String funcName)
+      : super('${HTError.missingFuncBody} $funcName', HTErrorType.interpreter);
 }
 
 class HTErrorArity extends HTError {
   HTErrorArity(String id, int argsCount, int paramsCount)
-      : super('${HTError.arity1} [$argsCount] ${HTError.arity2} [$id] [$paramsCount]', HTErrorType.interpreter);
+      : super(
+      '${HTError.arity1} [$argsCount] ${HTError.arity2} [$id] [$paramsCount]',
+      HTErrorType.interpreter);
 }
 
 class HTErrorBinding extends HTError {
-  HTErrorBinding(String id) : super('${HTError.binding} [$id]', HTErrorType.interpreter);
+  HTErrorBinding(String id)
+      : super('${HTError.binding} [$id]', HTErrorType.interpreter);
 }
 
 class HTErrorExternalVar extends HTError {
@@ -262,4 +294,10 @@ class HTErrorExternalVar extends HTError {
 
 class HTErrorSignature extends HTError {
   HTErrorSignature() : super(HTError.bytesSig, HTErrorType.interpreter);
+}
+
+class HTErrorExternalMemGet extends HTError {
+  HTErrorExternalMemGet(String memberId)
+      :super('${HTError.externalMemMissing1} [$memberId] ${HTError
+      .externalMemMissing2}', HTErrorType.interpreter);
 }

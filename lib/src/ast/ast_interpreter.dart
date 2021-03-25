@@ -1,25 +1,25 @@
+import '../class.dart';
+import '../common.dart';
+import '../declaration.dart';
+import '../enum.dart';
+import '../errors.dart';
+import '../extern_class.dart';
+import '../extern_object.dart';
+import '../function.dart';
+import '../interpreter.dart';
+import '../lexer.dart';
+import '../lexicon.dart';
+import '../namespace.dart';
+import '../object.dart';
+import '../parser.dart';
 import '../plugin/errorHandler.dart';
 import '../plugin/importHandler.dart';
-import '../extern_class.dart';
-import '../errors.dart';
-import 'ast.dart';
 import '../type.dart';
-import '../namespace.dart';
-import '../class.dart';
-import '../function.dart';
-import 'ast_function.dart';
-import '../lexer.dart';
-import '../parser.dart';
-import 'ast_parser.dart';
-import '../lexicon.dart';
-import 'ast_resolver.dart';
-import '../object.dart';
-import '../interpreter.dart';
-import '../extern_object.dart';
-import '../enum.dart';
-import '../common.dart';
+import 'ast.dart';
 import 'ast_declaration.dart';
-import '../declaration.dart';
+import 'ast_function.dart';
+import 'ast_parser.dart';
+import 'ast_resolver.dart';
 
 mixin AstInterpreterRef {
   late final HTAstInterpreter interpreter;
@@ -33,12 +33,14 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
 
   dynamic _curStmtValue;
 
-  HTAstInterpreter({bool debugMode = false, HTErrorHandler? errorHandler, HTImportHandler? importHandler})
-      : super(debugMode: debugMode, errorHandler: errorHandler, importHandler: importHandler);
+  HTAstInterpreter(
+      {bool debugMode = false, HTErrorHandler? errorHandler, HTImportHandler? importHandler})
+      : super(debugMode: debugMode,
+      errorHandler: errorHandler,
+      importHandler: importHandler);
 
   @override
-  Future<dynamic> eval(
-    String content, {
+  Future<dynamic> eval(String content, {
     String? fileName,
     String libName = HTLexicon.global,
     HTNamespace? namespace,
@@ -56,8 +58,10 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
     try {
       var tokens = lexer.lex(content, curFileName);
 
-      final statements = await parser.parse(tokens, this, curNamespace, curFileName, style);
-      _distances.addAll(resolver.resolve(statements, curFileName, libName: libName));
+      final statements = await parser.parse(
+          tokens, this, curNamespace, curFileName, style);
+      _distances.addAll(
+          resolver.resolve(statements, curFileName, libName: libName));
 
       for (final stmt in statements) {
         _curStmtValue = visitASTNode(stmt);
@@ -65,7 +69,8 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
 
       if (invokeFunc != null) {
         if (style == ParseStyle.library) {
-          return invoke(invokeFunc, positionalArgs: positionalArgs, namedArgs: namedArgs);
+          return invoke(
+              invokeFunc, positionalArgs: positionalArgs, namedArgs: namedArgs);
         }
       } else {
         return _curStmtValue;
@@ -81,12 +86,17 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
       HTInterpreterError newErr;
       if (e is HTParserError) {
         newErr = HTInterpreterError(
-            '${e.message}\nCall stack:\n$callStack', e.type, parser.curFileName, parser.curLine, parser.curColumn);
+            '${e.message}\nCall stack:\n$callStack', e.type, parser.curFileName,
+            parser.curLine, parser.curColumn);
       } else if (e is HTResolverError) {
-        newErr = HTInterpreterError('${e.message}\nCall stack:\n$callStack', e.type, resolver.curFileName,
+        newErr = HTInterpreterError(
+            '${e.message}\nCall stack:\n$callStack', e.type,
+            resolver.curFileName,
             resolver.curLine, resolver.curColumn);
       } else {
-        newErr = HTInterpreterError('$e\nCall stack:\n$callStack', HTErrorType.other, curFileName, curLine, curColumn);
+        newErr = HTInterpreterError(
+            '$e\nCall stack:\n$callStack', HTErrorType.other, curFileName,
+            curLine, curColumn);
       }
 
       errorHandler.handle(newErr);
@@ -95,8 +105,7 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
 
   /// 解析文件
   @override
-  Future<dynamic> import(
-    String key, {
+  Future<dynamic> import(String key, {
     String? libName,
     ParseStyle style = ParseStyle.library,
     String? invokeFunc,
@@ -105,13 +114,16 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
   }) async {
     dynamic result;
 
-    final module = await importHandler.import(key, curFileName != HTLexicon.anonymousScript ? curFileName : null);
+    final module = await importHandler.import(
+        key, curFileName != HTLexicon.anonymousScript ? curFileName : null);
     curFileName = module.fileName;
 
     HTNamespace? library_namespace;
     if ((libName != null) && (libName != HTLexicon.global)) {
       library_namespace = HTNamespace(this, id: libName, closure: globals);
-      globals.define(HTDeclaration(libName, value: library_namespace, declType: HTTypeId.namespace, isImmutable: true));
+      globals.define(HTDeclaration(libName, value: library_namespace,
+          declType: HTTypeId.namespace,
+          isImmutable: true));
     }
 
     result = eval(module.content,
@@ -131,7 +143,9 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
   // TODO: 调用构造函数
   @override
   dynamic invoke(String functionName,
-      {String? objectName, List<dynamic> positionalArgs = const [], Map<String, dynamic> namedArgs = const {}}) {
+      {String? objectName, List<dynamic> positionalArgs = const [], Map<
+          String,
+          dynamic> namedArgs = const {}}) {
     if (objectName == null) {
       var func = globals.fetch(functionName);
       if (func is HTFunction) {
@@ -144,7 +158,8 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
             throw HTErrorExternParams();
           }
         } else {
-          return Function.apply(func, positionalArgs, namedArgs.map((key, value) => MapEntry(Symbol(key), value)));
+          return Function.apply(func, positionalArgs,
+              namedArgs.map((key, value) => MapEntry(Symbol(key), value)));
           // throw HTErrorExternFunc(func.toString());
         }
       } else {
@@ -164,7 +179,8 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
             throw HTErrorExternParams();
           }
         } else {
-          return Function.apply(func, positionalArgs, namedArgs.map((key, value) => MapEntry(Symbol(key), value)));
+          return Function.apply(func, positionalArgs,
+              namedArgs.map((key, value) => MapEntry(Symbol(key), value)));
           // throw HTErrorExternFunc(func.toString());
         }
       } else {
@@ -377,11 +393,13 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
           if (right is bool) {
             return left && right;
           } else {
-            throw HTErrorUndefinedBinaryOperator(left.toString(), right.toString(), expr.op.lexeme);
+            throw HTErrorUndefinedBinaryOperator(
+                left.toString(), right.toString(), expr.op.lexeme);
           }
         }
       } else {
-        throw HTErrorUndefinedBinaryOperator(left.toString(), right.toString(), expr.op.lexeme);
+        throw HTErrorUndefinedBinaryOperator(
+            left.toString(), right.toString(), expr.op.lexeme);
       }
     } else {
       right = visitASTNode(expr.right);
@@ -392,16 +410,19 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
           if (right is bool) {
             return left || right;
           } else {
-            throw HTErrorUndefinedBinaryOperator(left.toString(), right.toString(), expr.op.lexeme);
+            throw HTErrorUndefinedBinaryOperator(
+                left.toString(), right.toString(), expr.op.lexeme);
           }
         } else {
-          throw HTErrorUndefinedBinaryOperator(left.toString(), right.toString(), expr.op.lexeme);
+          throw HTErrorUndefinedBinaryOperator(
+              left.toString(), right.toString(), expr.op.lexeme);
         }
       } else if (expr.op.type == HTLexicon.equal) {
         return left == right;
       } else if (expr.op.type == HTLexicon.notEqual) {
         return left != right;
-      } else if (expr.op.type == HTLexicon.add || expr.op.type == HTLexicon.subtract) {
+      } else
+      if (expr.op.type == HTLexicon.add || expr.op.type == HTLexicon.subtract) {
         if ((left is String) && (right is String)) {
           return left + right;
         } else if ((left is num) && (right is num)) {
@@ -411,7 +432,8 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
             return left - right;
           }
         } else {
-          throw HTErrorUndefinedBinaryOperator(left.toString(), right.toString(), expr.op.lexeme);
+          throw HTErrorUndefinedBinaryOperator(
+              left.toString(), right.toString(), expr.op.lexeme);
         }
       } else if (expr.op.type == HTLexicon.IS) {
         if (right is HTClass) {
@@ -426,8 +448,8 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
           (expr.op.type == HTLexicon.greaterOrEqual) ||
           (expr.op.type == HTLexicon.lesser) ||
           (expr.op.type == HTLexicon.lesserOrEqual)) {
-        if ((expr.op.type == HTLexicon.IS) && (right is HTClass)) {
-        } else if (left is num) {
+        if ((expr.op.type == HTLexicon.IS) && (right is HTClass)) {} else
+        if (left is num) {
           if (right is num) {
             if (expr.op.type == HTLexicon.multiply) {
               return left * right;
@@ -445,13 +467,16 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
               return left <= right;
             }
           } else {
-            throw HTErrorUndefinedBinaryOperator(left.toString(), right.toString(), expr.op.lexeme);
+            throw HTErrorUndefinedBinaryOperator(
+                left.toString(), right.toString(), expr.op.lexeme);
           }
         } else {
-          throw HTErrorUndefinedBinaryOperator(left.toString(), right.toString(), expr.op.lexeme);
+          throw HTErrorUndefinedBinaryOperator(
+              left.toString(), right.toString(), expr.op.lexeme);
         }
       } else {
-        throw HTErrorUndefinedBinaryOperator(left.toString(), right.toString(), expr.op.lexeme);
+        throw HTErrorUndefinedBinaryOperator(
+            left.toString(), right.toString(), expr.op.lexeme);
       }
     }
   }
@@ -477,9 +502,12 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
         if (callee.funcType != FunctionType.constructor) {
           if (callee.context is HTInstance) {
             return callee.call(
-                positionalArgs: positionalArgs, namedArgs: namedArgs, instance: callee.context as HTInstance);
+                positionalArgs: positionalArgs,
+                namedArgs: namedArgs,
+                instance: callee.context as HTInstance);
           } else {
-            return callee.call(positionalArgs: positionalArgs, namedArgs: namedArgs);
+            return callee.call(
+                positionalArgs: positionalArgs, namedArgs: namedArgs);
           }
         } else {
           final className = callee.className;
@@ -488,7 +516,9 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
             if (!klass.isExtern) {
               // 命名构造函数
               return klass.createInstance(this, expr.line, expr.column,
-                  constructorName: callee.id, positionalArgs: positionalArgs, namedArgs: namedArgs);
+                  constructorName: callee.id,
+                  positionalArgs: positionalArgs,
+                  namedArgs: namedArgs);
             } else {
               // 外部命名构造函数
               final externClass = fetchExternalClass(className);
@@ -501,7 +531,8 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
                 }
               } else {
                 return Function.apply(
-                    constructor, positionalArgs, namedArgs.map((key, value) => MapEntry(Symbol(key), value)));
+                    constructor, positionalArgs, namedArgs.map((key, value) =>
+                    MapEntry(Symbol(key), value)));
                 // throw HTErrorExternFunc(constructor.toString());
               }
             }
@@ -519,7 +550,8 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
           }
         } else {
           return Function.apply(
-              externFunc, positionalArgs, namedArgs.map((key, value) => MapEntry(Symbol(key), value)));
+              externFunc, positionalArgs,
+              namedArgs.map((key, value) => MapEntry(Symbol(key), value)));
           // throw HTErrorExternFunc(constructor.toString());
         }
       }
@@ -540,7 +572,8 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
           }
         } else {
           return Function.apply(
-              constructor, positionalArgs, namedArgs.map((key, value) => MapEntry(Symbol(key), value)));
+              constructor, positionalArgs,
+              namedArgs.map((key, value) => MapEntry(Symbol(key), value)));
           // throw HTErrorExternFunc(constructor.toString());
         }
       }
@@ -553,7 +586,8 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
           throw HTErrorExternParams();
         }
       } else {
-        return Function.apply(callee, positionalArgs, namedArgs.map((key, value) => MapEntry(Symbol(key), value)));
+        return Function.apply(callee, positionalArgs,
+            namedArgs.map((key, value) => MapEntry(Symbol(key), value)));
         // throw HTErrorExternFunc(callee.toString());
       }
     } else {
@@ -595,7 +629,7 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
       return collection[key];
     }
 
-    throw HTErrorSubGet(collection.toString());
+    throw HTErrorSubGet(collection.toString(), expr.key.toString());
   }
 
   @override
@@ -610,7 +644,7 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
       return value;
     }
 
-    throw HTErrorSubGet(collection.toString());
+    throw HTErrorSubGet(collection.toString(), key.toString());
   }
 
   @override
@@ -636,6 +670,9 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
     }
     //如果是Dart对象
     else {
+      if (object == null) {
+        throw HTErrorExternalMemGet(expr.key.lexeme);
+      }
       var typeid = object.runtimeType.toString();
       if (typeid.contains('<')) {
         typeid = typeid.substring(0, typeid.indexOf('<'));
@@ -801,7 +838,9 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
     curColumn = stmt.column;
     final func = HTAstFunction(stmt, this, context: curNamespace);
     if (stmt.id != null) {
-      curNamespace.define(HTDeclaration(stmt.id!.lexeme, value: func, declType: func.typeid, isImmutable: true));
+      curNamespace.define(HTDeclaration(stmt.id!.lexeme, value: func,
+          declType: func.typeid,
+          isImmutable: true));
     }
     return func;
   }
@@ -815,15 +854,20 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
       if (stmt.superClass == null) {
         superClass = globals.fetch(HTLexicon.rootClass);
       } else {
-        HTClass existSuperClass = _getValue(stmt.superClass!.id.lexeme, stmt.superClass!);
+        HTClass existSuperClass = _getValue(
+            stmt.superClass!.id.lexeme, stmt.superClass!);
         superClass = existSuperClass;
       }
     }
 
-    final klass = HTClass(stmt.id.lexeme, superClass, this, isExtern: stmt.isExtern, closure: curNamespace);
+    final klass = HTClass(
+        stmt.id.lexeme, superClass, this, isExtern: stmt.isExtern,
+        closure: curNamespace);
 
     // 在开头就定义类本身的名字，这样才可以在类定义体中使用类本身
-    curNamespace.define(HTDeclaration(stmt.id.lexeme, value: klass, declType: HTTypeId.CLASS, isImmutable: true));
+    curNamespace.define(HTDeclaration(stmt.id.lexeme, value: klass,
+        declType: HTTypeId.CLASS,
+        isImmutable: true));
 
     var save = curNamespace;
     curNamespace = klass;
@@ -862,12 +906,18 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
         func = HTAstFunction(method, this, context: klass);
         klass.define(
             HTDeclaration(method.internalName,
-                value: func, declType: func.typeid, isExtern: method.isExtern, isImmutable: true),
+                value: func,
+                declType: func.typeid,
+                isExtern: method.isExtern,
+                isImmutable: true),
             override: true);
       } else {
         func = HTAstFunction(method, this);
         klass.defineInInstance(HTDeclaration(method.internalName,
-            value: func, declType: func.typeid, isExtern: method.isExtern, isImmutable: true));
+            value: func,
+            declType: func.typeid,
+            isExtern: method.isExtern,
+            isImmutable: true));
       }
     }
 
@@ -896,8 +946,11 @@ class HTAstInterpreter extends HTInterpreter implements ASTNodeVisitor {
       defs[id] = HTEnumItem(i, id, HTTypeId(stmt.id.lexeme));
     }
 
-    final enumClass = HTEnum(stmt.id.lexeme, defs, this, isExtern: stmt.isExtern);
+    final enumClass = HTEnum(
+        stmt.id.lexeme, defs, this, isExtern: stmt.isExtern);
 
-    curNamespace.define(HTDeclaration(stmt.id.lexeme, value: enumClass, declType: HTTypeId.ENUM, isImmutable: true));
+    curNamespace.define(HTDeclaration(stmt.id.lexeme, value: enumClass,
+        declType: HTTypeId.ENUM,
+        isImmutable: true));
   }
 }
