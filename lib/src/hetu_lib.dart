@@ -66,6 +66,8 @@ external class String {
 	fun toLowerCase(): String
 	
 	fun toUpperCase(): String
+	
+	fun length(): int
 }
 
 external class List {

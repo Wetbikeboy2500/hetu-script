@@ -105,6 +105,8 @@ class HTString extends HTExternObject<String> {
         return externObject.toLowerCase;
       case 'toUpperCase':
         return externObject.toUpperCase;
+      case 'length':
+        return externObject.length;
       default:
         throw HTErrorUndefined(varName);
     }
