@@ -34,14 +34,15 @@ abstract class HTInterpreter {
     this.errorHandler = errorHandler ?? DefaultErrorHandler();
     this.importHandler = importHandler ?? DefaultImportHandler();
   }
-
-  Future<void> init(
+ 
+  Future<dynamic> init(
       {Map<String, Function> externalFunctions = const {},
       Map<String, HTExternalClass> externalClasses = const {}}) async {
     // load classes and functions in core library.
     // TODO: dynamic load needed core lib in script
+    List<Future> futures = [];
     for (final file in coreModules.keys) {
-      await eval(coreModules[file]!);
+      futures.add(eval(coreModules[file]!));
     }
 
     for (var key in HTExternGlobal.functions.keys) {
@@ -62,6 +63,7 @@ abstract class HTInterpreter {
     for (var key in externalClasses.keys) {
       bindExternalClass(key, externalClasses[key]!);
     }
+    return Future.wait(futures);
   }
 
   Future<dynamic> eval(
