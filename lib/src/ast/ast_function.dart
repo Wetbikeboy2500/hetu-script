@@ -104,6 +104,9 @@ class HTAstFunction extends HTFunction with AstInterpreterRef {
 
           var arg;
           if (!param.isNamed) {
+            if (positionalArgs.length <= i) {
+              throw HTErrorRange(positionalArgs.length, i, this.internalName.toString());
+            }
             arg = positionalArgs[i];
           } else {
             arg = namedArgs[param.id.lexeme];
