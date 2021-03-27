@@ -740,9 +740,9 @@ class HTAstParser extends Parser {
 
     final class_name = match(HTLexicon.identifier);
 
-    if (_classStmts.containsKey(class_name.lexeme)) {
-      throw HTErrorDefined_Parser(class_name.lexeme);
-    }
+    // if (_classStmts.containsKey(class_name.lexeme)) {
+    //   throw HTErrorDefined_Parser(class_name.lexeme);
+    // }
 
     // TODO: 嵌套类?
     _curClassName = class_name.lexeme;
@@ -816,9 +816,9 @@ class HTAstParser extends Parser {
 
     final class_name = match(HTLexicon.identifier);
 
-    if (_classStmts.containsKey(class_name.lexeme)) {
-      throw HTErrorDefined_Parser(class_name.lexeme);
-    }
+    // if (_classStmts.containsKey(class_name.lexeme)) {
+    //   throw HTErrorDefined_Parser(class_name.lexeme);
+    // }
 
     var enumerations = <String>[];
     if (expect([HTLexicon.curlyLeft], consume: true, error: false)) {
