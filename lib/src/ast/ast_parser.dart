@@ -17,7 +17,7 @@ class HTAstParser extends Parser {
 
   String? _curClassName;
 
-  static final Map<String, ASTNode> _classStmts = {};
+  final Map<String, ASTNode> _classStmts = {};
 
   Future<List<ASTNode>> parse(List<Token> tokens, HTInterpreter interpreter, HTNamespace context, String fileName,
       [ParseStyle style = ParseStyle.library, debugMode = false]) async {
